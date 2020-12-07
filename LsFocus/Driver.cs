@@ -39,6 +39,8 @@ using ASCOM.Utilities;
 using ASCOM.DeviceInterface;
 using System.Globalization;
 using System.Collections;
+using System.Threading;
+using LsStepMotor;
 
 namespace ASCOM.LsFocuser
 {
@@ -77,6 +79,7 @@ namespace ASCOM.LsFocuser
         internal static string traceStateDefault = "false";
 
         internal static string comPort; // Variables to hold the current device configuration
+        private ASCOM.Utilities.Serial theSerial = new ASCOM.Utilities.Serial();
 
         /// <summary>
         /// Private variable to hold the connected state
@@ -117,7 +120,78 @@ namespace ASCOM.LsFocuser
             tl.LogMessage("Focuser", "Completed initialisation");
         }
 
+        static void print_bytes(byte[] resp, int nr)
+        {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < nr; i++)
+            {
+                sb.Append(String.Format(" {0:X2}", resp[i]));
+            }
+            Console.WriteLine(sb.ToString());
+        }
+        static uint getCurPos(ASCOM.Utilities.Serial sp)
+        {
+            sp.TransmitBinary(LinShengStepMotor.cmd_query_curpos);
+            byte [] resp = sp.ReceiveCountedBinary(7);
+            uint curpos = LinShengStepMotor.extrace_query_response_value_0_3(resp);
+            return curpos;
+        }
 
+        static uint getSetPos(ASCOM.Utilities.Serial sp)
+        {
+            sp.TransmitBinary(LinShengStepMotor.cmd_query_setpos);
+            byte[] resp = sp.ReceiveCountedBinary(7);
+            uint pos = LinShengStepMotor.extrace_query_response_value_0_3(resp);
+            return pos;
+        }
+
+        static SpeedInfo getCurrentSpeed(ASCOM.Utilities.Serial sp)
+        {
+            sp.TransmitBinary(LinShengStepMotor.cmd_query_cur_speed);
+            byte[] resp = sp.ReceiveCountedBinary(6);
+            return LinShengStepMotor.extrace_query_response_speed(resp);
+        }
+
+        static void waitForFinish(ASCOM.Utilities.Serial myPort)
+        {
+            uint curpos = 0;
+            uint setpos = 0;
+            SpeedInfo spd = getCurrentSpeed(myPort);
+            for (int i = 0; i < 10000000; i++)
+            {
+
+                curpos = getCurPos(myPort);
+                setpos = getSetPos(myPort);
+                //spd = getCurrentSpeed(myPort);
+
+               // Console.WriteLine("即时运行位置:" + curpos + " 设定运行位置:" + setpos + " 速度倍数:" + spd.level + " 速度单位毫秒:" + spd.speed);
+
+                if (curpos == setpos)
+                {
+                  //  Console.WriteLine("到达目标位置");
+                    break;
+                }
+
+                uint wt = (setpos > curpos ? (setpos - curpos) : (curpos - setpos)) * spd.speed / 1000+2000;
+                Thread.Sleep((int)wt);
+
+            }
+
+
+        }
+
+
+        public static void moveAndWaitStep(bool add, uint nstep, ASCOM.Utilities.Serial port)
+        {
+
+            byte[] cmd = add ? LinShengStepMotor.cmd_acc_add_relative_position(nstep) :
+                LinShengStepMotor.cmd_acc_sub_relative_position(nstep);
+
+            port.TransmitBinary(cmd);
+
+            waitForFinish(port);
+
+        }
         //
         // PUBLIC COM INTERFACE IFocuserV3 IMPLEMENTATION
         //
@@ -223,12 +297,29 @@ namespace ASCOM.LsFocuser
                     connectedState = true;
                     LogMessage("Connected Set", "Connecting to port {0}", comPort);
                     // TODO connect to the device
+                    theSerial.PortName = comPort;
+                    theSerial.Speed = SerialSpeed.ps9600;
+                    // theSerial.ClearBuffers();
+                    theSerial.Connected = true;
+                    focuserPosition =(int) getCurPos(theSerial);
+                   SpeedInfo spd = getCurrentSpeed(theSerial);
+   
+                    uint myspeed = 4000;
+                    if (spd.speed != myspeed)
+                    {
+                       // Console.WriteLine("修改速度: " + myspeed);
+                        byte [] cmd = LinShengStepMotor.cmd_set_speed_ex(0, (ushort)(myspeed));
+                        theSerial.TransmitBinary(cmd);
+                        Thread.Sleep(1000);
+                    }
                 }
                 else
                 {
                     connectedState = false;
                     LogMessage("Connected Set", "Disconnecting from port {0}", comPort);
                     // TODO disconnect from the device
+                    theSerial.Connected = false;
+
                 }
             }
         }
@@ -291,7 +382,7 @@ namespace ASCOM.LsFocuser
         #region IFocuser Implementation
 
         private int focuserPosition = 0; // Class level variable to hold the current focuser position
-        private const int focuserSteps = 10000;
+        private const int focuserSteps = 5500;
 
         public bool Absolute
         {
@@ -305,7 +396,8 @@ namespace ASCOM.LsFocuser
         public void Halt()
         {
             tl.LogMessage("Halt", "Not implemented");
-            throw new ASCOM.MethodNotImplementedException("Halt");
+           // throw new ASCOM.MethodNotImplementedException("Halt");
+            theSerial.TransmitBinary(LinShengStepMotor.cmd_stop);
         }
 
         public bool IsMoving
@@ -352,6 +444,11 @@ namespace ASCOM.LsFocuser
         public void Move(int Position)
         {
             tl.LogMessage("Move", Position.ToString());
+            int delta = Position - focuserPosition;
+
+            moveAndWaitStep(delta > 0,(uint) Math.Abs(delta),theSerial);
+
+
             focuserPosition = Position; // Set the focuser position
         }
 

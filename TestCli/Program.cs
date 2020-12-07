@@ -74,7 +74,48 @@ namespace TestLinShengStepperMotor
             return LinShengStepMotor.extrace_query_response_speed(resp);
         }
 
-        static void Main(string[] args)
+        static void waitForFinish(SerialPort myPort)
+        {
+            uint curpos = 0;
+            uint setpos = 0;
+            SpeedInfo spd = getCurrentSpeed(myPort);
+            for (int i = 0; i < 400; i++)
+            {
+
+                curpos = getCurPos(myPort);
+                setpos = getSetPos(myPort);
+                //spd = getCurrentSpeed(myPort);
+
+                Console.WriteLine("即时运行位置:" + curpos + " 设定运行位置:" + setpos + " 速度倍数:" + spd.level + " 速度单位毫秒:" + spd.speed);
+
+
+                if (curpos == setpos)
+                {
+                    Console.WriteLine("到达目标位置");
+                    break;
+                }
+
+                uint wt = (setpos>curpos?(setpos-curpos):(curpos-setpos))* spd.speed / 1000;
+                Thread.Sleep((int)wt);
+
+            }
+
+
+        }
+
+        public static void moveAndWaitStep(bool add, uint nstep, SerialPort port)
+        {
+
+            byte[] cmd = add ? LinShengStepMotor.cmd_acc_add_relative_position(nstep) :
+                LinShengStepMotor.cmd_acc_sub_relative_position(nstep);
+
+            port.Write(cmd, 0, cmd.Length);
+
+            waitForFinish(port);
+
+        }
+            
+         static void Main(string[] args)
         {
             uint curpos = 0;
             uint setpos = 0;
@@ -96,66 +137,37 @@ namespace TestLinShengStepperMotor
             
            
             spd = getCurrentSpeed(myPort);
-            spd = getCurrentSpeed(myPort);
+   
             curpos = getCurPos(myPort);
             setpos = getSetPos(myPort);
+            if (curpos != 0)
+            {
+                moveAndWaitStep(false, curpos, myPort);
+            }
             Console.WriteLine("即时运行位置:" + curpos + " 设定运行位置:" + setpos + " 速度倍数:" + spd.level + " 速度单位毫秒:" + spd.speed);
 
-            uint myspeed = 1000;
+            uint myspeed = 4000;
             if (spd.speed != myspeed)
             {
                 Console.WriteLine("修改速度: " + myspeed);
                 cmd = LinShengStepMotor.cmd_set_speed_ex(0, (ushort)(myspeed));
                 myPort.Write(cmd, 0, cmd.Length);
                 Thread.Sleep(1000);
-                
             }
             //spd = getCurrentSpeed(myPort);
             //curpos = getCurPos(myPort);
             //setpos = getSetPos(myPort);
             //Console.WriteLine("即时运行位置:" + curpos + " 设定运行位置:" + setpos + " 速度倍数:" + spd.level + " 速度单位毫秒:" + spd.speed);
 
-           // cmd = LinShengStepMotor.cmd_set_abs_position(0);
-            //myPort.Write(cmd, 0, cmd.Length);
-
-
-           
-
-            //curpos = getCurPos(myPort);
-            //setpos = getSetPos(myPort);
-            //spd = getCurrentSpeed(myPort);
-
-//            Console.WriteLine("即时运行位置:" + curpos + " 设定运行位置:" + setpos + " 速度倍数:" + spd.level + " 速度单位毫秒:" + spd.speed);
-
-
             Console.WriteLine("转轴位置累加 4096 ");
-            cmd = LinShengStepMotor.cmd_acc_add_relative_position(4096);
-            myPort.Write(cmd, 0, cmd.Length);
+
+
+            moveAndWaitStep(true, 5500, myPort);
 
 
 
-            for (int i = 0; i < 400; i++)
-            {
-               
-                curpos = getCurPos(myPort);
-                setpos = getSetPos(myPort);
-                //spd = getCurrentSpeed(myPort);
-
-                Console.WriteLine("即时运行位置:" + curpos + " 设定运行位置:"  + setpos  +" 速度倍数:" + spd.level + " 速度单位毫秒:" + spd.speed);
-
-
-                if (curpos == setpos)
-                {
-                    Console.WriteLine("到达目标位置");
-                    Thread.Sleep(1000);
-                    break;
-                }
-
-                Thread.Sleep(1000);
-                
-            }
-
-
+       //     Console.WriteLine("转轴位置累减 4096 ");
+       //     moveAndWaitStep(false, 4096, myPort);
 
           
 
