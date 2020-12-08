@@ -444,8 +444,10 @@ namespace ASCOM.LsFocuser
         public void Move(int Position)
         {
             tl.LogMessage("Move", Position.ToString());
+            if (Position > MaxStep || Position < 0)
+                return;
             int delta = Position - focuserPosition;
-
+            
             moveAndWaitStep(delta > 0,(uint) Math.Abs(delta),theSerial);
 
 
