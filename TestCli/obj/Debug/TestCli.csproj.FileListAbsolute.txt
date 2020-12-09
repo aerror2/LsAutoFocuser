@@ -1,8 +1,0 @@
-C:\Users\dany\Documents\GitHub\LsAutoFocuser\TestCli\bin\Debug\TestCli.exe.config
-C:\Users\dany\Documents\GitHub\LsAutoFocuser\TestCli\obj\Debug\TestCli.csprojResolveAssemblyReference.cache
-C:\Users\dany\Documents\GitHub\LsAutoFocuser\TestCli\bin\Debug\TestCli.exe
-C:\Users\dany\Documents\GitHub\LsAutoFocuser\TestCli\bin\Debug\TestCli.pdb
-C:\Users\dany\Documents\GitHub\LsAutoFocuser\TestCli\bin\Debug\LsStepMotor.dll
-C:\Users\dany\Documents\GitHub\LsAutoFocuser\TestCli\bin\Debug\LsStepMotor.pdb
-C:\Users\dany\Documents\GitHub\LsAutoFocuser\TestCli\obj\Debug\TestCli.exe
-C:\Users\dany\Documents\GitHub\LsAutoFocuser\TestCli\obj\Debug\TestCli.pdb
