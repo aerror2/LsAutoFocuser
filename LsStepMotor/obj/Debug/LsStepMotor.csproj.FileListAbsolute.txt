@@ -1,4 +1,0 @@
-C:\Users\dany\Documents\GitHub\LsAutoFocuser\LsStepMotor\bin\Debug\LsStepMotor.dll
-C:\Users\dany\Documents\GitHub\LsAutoFocuser\LsStepMotor\bin\Debug\LsStepMotor.pdb
-C:\Users\dany\Documents\GitHub\LsAutoFocuser\LsStepMotor\obj\Debug\LsStepMotor.dll
-C:\Users\dany\Documents\GitHub\LsAutoFocuser\LsStepMotor\obj\Debug\LsStepMotor.pdb
