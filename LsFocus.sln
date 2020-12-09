@@ -1,6 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 2013
+VisualStudioVersion = 12.0.21005.1
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LsFocus", "LsFocus\LsFocus.csproj", "{64308775-BD4A-469C-BCAB-3ED830B811AF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LsStepMotor", "LsStepMotor\LsStepMotor.csproj", "{41A206B5-4B76-4408-9C4C-8EDFB8275C7C}"
@@ -17,8 +19,8 @@ Global
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{64308775-BD4A-469C-BCAB-3ED830B811AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{64308775-BD4A-469C-BCAB-3ED830B811AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{64308775-BD4A-469C-BCAB-3ED830B811AF}.Debug|x64.ActiveCfg = Debug|x64
-		{64308775-BD4A-469C-BCAB-3ED830B811AF}.Debug|x64.Build.0 = Debug|x64
+		{64308775-BD4A-469C-BCAB-3ED830B811AF}.Debug|x64.ActiveCfg = Release|x64
+		{64308775-BD4A-469C-BCAB-3ED830B811AF}.Debug|x64.Build.0 = Release|x64
 		{64308775-BD4A-469C-BCAB-3ED830B811AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{64308775-BD4A-469C-BCAB-3ED830B811AF}.Release|Any CPU.Build.0 = Release|Any CPU
 		{64308775-BD4A-469C-BCAB-3ED830B811AF}.Release|x64.ActiveCfg = Release|x64
